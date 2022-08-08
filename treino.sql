@@ -1,290 +1,300 @@
-Create database dbtreino; 
-use dbtreino; 
+drop database dbDistribuidoraEduBia;
+create database dbDistribuidoraEduBia;
+use dbDistribuidoraEduBia;
 
-create table tbUsuario(
-IdUsuario int primary key not null, 
-NomeUsuario varchar(45),
-DataNasci date
-); 
-
-create table tbCliente(
-CodicoCli bigint primary key,
-Nome varchar(50),
-Endereco varchar(60)
+CREATE TABLE tbUF (
+IdUF INT AUTO_INCREMENT PRIMARY KEY,
+UF CHAR(2) UNIQUE not null
 );
 
-create table tbEstado(
-Id int primary key,
-Uf char (20)
+CREATE TABLE tbBairro (
+IdBairro INT AUTO_INCREMENT PRIMARY KEY,
+Bairro VARCHAR(200) not null
 );
 
-create table tbproduto(
-Barras char(13) primary key, 
-Valor decimal(4,4),
-Descri varchar(100)  
+CREATE TABLE tbCidade (
+IdCidade INT AUTO_INCREMENT PRIMARY KEY,
+Cidade VARCHAR(200) not null
 );
 
-
-alter table tbCliente modify column Nome varchar(58); 
-
-alter table tbproduto add column Qtd int; 
-
-drop table tbEstado; 
-
-show tables from dbtreino; 
-
-alter table tbUsuario drop column DataNasci; 
-
-/* AQUI COMEÇA A LISTA DE EXERCICIOS II*/ 
-
-Create database dbtreino2;
-use dbtreino2; 
-
-create table tbproduto(
-  IdProp int not null primary key,
-  NomeProd varchar(50) not null, 
-  Qtd int,
-  DataValidade date not null, 
-  Preco decimal (7,4) not null
+CREATE TABLE tbEndereco (
+CEP VARCHAR(8) PRIMARY KEY,
+Logradouro VARCHAR(200),
+IdBairro INT,
+FOREIGN KEY (IdBairro)
+REFERENCES tbBairro (IdBairro),
+IdCidade INT,
+FOREIGN KEY (IdCidade)
+REFERENCES tbCidade (IdCidade),
+IdUF INT,
+FOREIGN KEY (IdUF)
+REFERENCES tbUF (IdUF)
 );
 
-create table tbcliente(
-  Codigo int primary key, 
-  NomeCli varchar(50) not null, 
-  DataNascimento date null
-);
-
-/* AQUI COMEÇA A LISTA DE EXERCICIOS III*/
-
-create database dbtreino3;
-use dbtreino3; 
-
-create table tbCliente(
-  Id int primary key, 
-  NomeCli varchar (200) not null, 
-  NumEnd int not null,
-  CompEnd varchar(50) null
-);
-
-create table tbClientePF(
-  CPF int(11) unique primary key not null, 
-  RG int(9), 
-  Rgdig char(1), 
-  Nascimento date not null
-);
-
-
-/*AQUI COMEÇA A LISTA DE EXERCICIOS IV*/
-
-create database dbtreino5;
-use dbtreino5;  
-
-create table tbcliente(
-idCli int primary key auto_increment not null,
-NomeCli varchar(200) not null,
+CREATE TABLE tbCliente (
+Id INT PRIMARY KEY AUTO_INCREMENT,
+Nome VARCHAR(50) NOT NULL,
+CEP VARCHAR(8) NOT NULL,
+CompEnd VARCHAR(50),
 NumEnd int null,
-CompleEnd varchar(50),
-Cep int not null, foreign key (Cep) references tbendereco (Cep)
+FOREIGN KEY (CEP)
+REFERENCES tbEndereco (CEP)
 );
 
-create table tbclientpf(
-Cpf bigint primary key not null,
-Rg bigint not null,
-Rg_dig bigint not null,
-Nasc date not null,
-idCli int,
-foreign key (idCli) references tbcliente (idCli)
+CREATE TABLE tbClientePF (
+IdCliente INT AUTO_INCREMENT,
+FOREIGN KEY (IdCliente)
+REFERENCES tbCliente (Id),
+Cpf VARCHAR(11) NOT NULL PRIMARY KEY,
+Rg VARCHAR(8),
+RgDig VARCHAR(1),
+Nasc DATE
 );
 
-create table tbclientepj(
-Cnpj int primary key unique,
-Ie bigint unique,
-idCli int,
-foreign key (idCli) references tbcliente (idCli)
+CREATE TABLE tbClientePJ (
+IdCliente INT AUTO_INCREMENT,
+FOREIGN KEY (IdCliente)
+REFERENCES tbCliente (Id),
+Cnpj VARCHAR(14) NOT NULL PRIMARY KEY,
+Ie VARCHAR(9)
 );
 
-create table tbendereco(
-Cep int primary key not null,
-Logradouro varchar(200) not null,
-idBairro int not null,
-foreign key (idBairro) references tbBairro (IdBairro), 
-IdCidade int not null,
-foreign key (IdCidade) references tbCidade (IdCidade),
-IdUF int not null,
-foreign key (IdUF) references tbUF (IdUF)
+CREATE TABLE tbNotaFiscal (
+NF INT PRIMARY KEY,
+TotalNota DECIMAL(7 , 2 ) NOT NULL,
+DataEmissao DATE NOT NULL
 );
 
-create table tbBairro(
-idBairro int primary key auto_increment,
-NomeBairro varchar(200) not null
+CREATE TABLE tbFornecedor (
+Codigo INT PRIMARY KEY AUTO_INCREMENT,
+Cnpj VARCHAR(14) NOT NULL,
+Nome VARCHAR(200),
+Telefone VARCHAR(11)
 );
 
-create table tbCidade(
-idCidade int primary key auto_increment,
-NomeCidade varchar(200) not null
+CREATE TABLE tbCompra (
+NotaFiscal INT PRIMARY KEY,
+DataCompra DATE NOT NULL,
+ValorTotal DECIMAL(8 , 2 ) NOT NULL,
+QtdTotal bigint NOT NULL,
+Cod_Fornecedor INT,
+FOREIGN KEY (Cod_Fornecedor)
+REFERENCES tbFornecedor (Codigo)
 );
 
-create table tbUF(
-idUF int primary key auto_increment, 
-UF char (2) not null
+CREATE TABLE tbProduto (
+CodBarras bigint PRIMARY KEY,
+Qtd numeric(6,2),
+Nome VARCHAR(50),
+ValorUnitario DECIMAL(6 ,2) NOT NULL
 );
 
-create table tbfornecedor(
-Codigo smallint auto_increment primary key,
-Cnpj smallint unique,
-Nome varchar(200) not null,
-Telefone smallint
+CREATE TABLE tbItemCompra (
+Qtd bigint NOT NULL,
+ValorItem DECIMAL(6 , 2 ) NOT NULL,
+NotaFiscal INT,
+CodBarras bigint,
+PRIMARY KEY (NotaFiscal , CodBarras),
+FOREIGN KEY (NotaFiscal)
+REFERENCES tbCompra (NotaFiscal),
+FOREIGN KEY (CodBarras)
+REFERENCES tbProduto (CodBarras)
 );
 
-alter table tbfornecedor modify column Cnpj bigint unique;
-alter table tbfornecedor modify column Telefone bigint unique;
-
-
-create table tbproduto(
-CodigoBarras bigint primary key unique,
-Nome varchar(200) not null,
-ValorUnitario decimal(5, 2) not null,
-Qtd int
+CREATE TABLE tbVenda (
+IdCliente INT,
+FOREIGN KEY (IdCliente)
+REFERENCES tbCliente (Id),
+NumeroVenda INT AUTO_INCREMENT PRIMARY KEY,
+DataVenda DATE NOT NULL,
+TotalVenda DECIMAL(7 , 2 ) NOT NULL,
+NotaFiscal INT,
+FOREIGN KEY (NotaFiscal)
+REFERENCES tbNotaFiscal (NF)
 );
 
-create table tbcompra(
-NotaFiscal int primary key,
-DataCompra date not null,
-ValorTotal decimal(5, 2) not null,
-QtdTotal bigint not null,
-codigo smallint,
-foreign key (Codigo) references tbfornecedor (Codigo)
+CREATE TABLE tbItemVenda (
+NumeroVenda INT,
+CodBarras bigint,
+PRIMARY KEY (NumeroVenda , CodBarras),
+FOREIGN KEY (NumeroVenda)
+REFERENCES tbVenda (NumeroVenda),
+FOREIGN KEY (CodBarras)
+REFERENCES tbProduto (CodBarras),
+Qtd bigint,
+ValorItem DECIMAL(6 , 2 )
 );
 
-create table tbPedidoCompra(
-ValorItem decimal(5, 2) not null,
-Qtd bigint not null,
-primary key(CodigoBarras, NotaFiscal),
-CodigoBarras bigint,
-foreign key (CodigoBarras) references tbproduto (CodigoBarras),
-NotaFiscal int,
-foreign key (NotaFiscal) references tbcompra (NotaFiscal)
-);
 
-create table tbvendas(
-NumeroVenda int primary key,
-DataVenda date,
-totalVenda decimal (5, 2) not null,
-Nf int,
-foreign key (Nf) references tbNotafiscal (Nf),
-idCli int,
-foreign key (idCli) references tbcliente (idCli)
-);
 
--- default current_time
+-- exercicio 1
 
-create table tbPedidoVenda(
-ValorItem decimal(5, 2) not null,
-Qtd bigint not null,
-primary key(NumeroVenda, CodigoBarras),
-NumeroVenda int, 
-foreign key (NumeroVenda) references tbvendas (NumeroVenda),
-CodigoBarras bigint, 
-foreign key (CodigoBarras) references tbproduto (CodigoBarras)
-);
 
-create table tbNotafiscal(
-Nf int primary key,
-TotalNota decimal(5, 2) not null,
-DataEmissao date not null
-);
 
-insert into tbfornecedor (Cnpj, Nome, telefone)
-values('1245678937123','Revenda Chico Loco','11934567897'),
-      ('1345678937123','José Faz Tudo S/A','11934567898'),
-      ('1445678937123','Vadalto Entregas','11934567899'),
-      ('1545678937123','Astrogildo Das Estrelas','11934567800'),
-      ('1645678937123','Amoroso E Doce','11934567801'),
-      ('1745678937123','Marcelo Dedal','11934567802'),
-	  ('1845678937123','Franciscano Cachaça','11934567803'),
-	  ('1945678937123','Joãozinho Chupeta','11934567804');
-      
-select * from tbfornecedor;
+insert into tbFornecedor( Cnpj, Nome, Telefone)
+values('1245678937123','Revenda Chico Loco','11934567897');
+insert into tbFornecedor( Cnpj, Nome, Telefone)
+values('1345678937123','José Faz Tudo S/A','11934567898');
+insert into tbFornecedor( Cnpj, Nome, Telefone)
+values('1445678937123','Vadalto Entregas','11934567899');
+insert into tbFornecedor( Cnpj, Nome, Telefone)
+values('1545678937123','Astrogildo das Estreça','11934567800');
+insert into tbFornecedor( Cnpj, Nome, Telefone)
+values('1645678937123','Amoroso e Doce','11934567801');
+insert into tbFornecedor(Cnpj, Nome, Telefone)
+values('1745678937123','Marcelo Dedal','11934567802');
+insert into tbFornecedor(Cnpj, Nome, Telefone)
+values('1845678937123','Franciscano Cachaça','11934567803');
+insert into tbFornecedor(Cnpj, Nome, Telefone)
+values('1945678937123','Joãozinho Chupeta','11934567804');
+
+
+
+select * from tbFornecedor;
+
+
+
+-- exercicio 2
+
+
 
 delimiter $$
-create procedure spInsertCid(vNomeCida varchar(200))
+create procedure SpInsertCidade(vCidade varchar(200))
 begin
-insert into tbCidade (NomeCidade) values (vNomeCida);
+insert into tbCidade(cidade) values (vCidade);
 end $$
 
-call spInsertCid ("Rio de Janeiro");
-call spInsertCid ("São Carlos");
-call spInsertCid ("Campinas");
-call spInsertCid ("Franco da Rocha");
-call spInsertCid ("Osasco");
-call spInsertCid ("Pirituba");
-call spInsertCid ("Lapa");
-call spInsertCid ("Ponta Grossa");
+call spInsertCidade("Rio de janeiro");
+call spInsertCidade("São Carlos");
+call spInsertCidade("Campinas");
+call spInsertCidade("Franco da Rocha");
+call spInsertCidade("Osasco");
+call spInsertCidade("Pirituba");
+call spInsertCidade("Lapa");
+call spInsertCidade("Ponta Grossa");
 
-select * from tbCidade;
+select * from tbcidade;
+
+
+-- exercicio 3
+
 
 delimiter $$
-create procedure spInsertest(vEstado char(2))
+create procedure spInsertUF(vEstado char(2))
 begin
-insert into tbUF (UF) values (vEstado);
+insert into tbUF(UF) values (vEstado);
 end $$
 
-call spInsertest ("SP");
-call spInsertest ("RJ");
-call spInsertest ("RS");
+call spInsertUF("SP");
+call spInsertUF("RJ");
+call spInsertUF("RS");
 
-select * from tbUF; 
+select * from tbUF;
+
+
+
+-- exercicio 4
+
 
 
 delimiter $$
-create procedure spInsety(vBairro varchar (200))
+create procedure SpInsertBairro(vBairro varchar(200))
 begin
-insert into tbBairro (Nomebairro) values (vBairro);
+insert into tbBairro(Bairro) values (vBairro);
 end $$
 
-call spInsety ("Aclimação");
-call spInsety("Capão Redondo");
-call spInsety ("Pirituba");
-call spInsety ("Liberdade");
 
-select* from tbBairro
+
+call spInsertBairro("Aclimação");
+call spInsertBairro("Capão Redondo");
+call spInsertBairro("Pirituba");
+call spInsertBairro("Liberdade");
+
+
+
+select * from tbbairro;
+
+
+
+-- exercicio 5
 
 delimiter $$
-create procedure spInsetyix(vCodigoBarras bigint, vNome varchar(200),vValorUnitario decimal(5, 2), vQtd int)
+create procedure spInsertProduto(vCodigoBarras bigint, vNome varchar(200),vValorUnitario decimal(5, 2), vQtd int)
 begin
-insert into tbProduto (CodigoBarras, Nome, ValorUnitario, Qtd) values (vCodigoBarras, vNome, vValorUnitario, vQtd);
+insert into tbProduto (CodBarras, Nome, ValorUnitario, Qtd) values (vCodigoBarras, vNome, vValorUnitario, vQtd);
 end $$
 
-call spInsetyix ('12345678910111', "Rei de papel mache", 54.61, "120");
-call spInsetyix ('12345678910112', "Bolinha de Sabão", 100.45, "120");
-call spInsetyix ('12345678910113', "Carro Bate Bate", 44.00, "120");
-call spInsetyix ('12345678910114', "Bola Furada", 10.00, "120");
-call spInsetyix ('12345678910115', "Maça Laranja", 99.44, "120");
-call spInsetyix ('12345678910116', "Boneco do Hitler", 124.00, "200");
-call spInsetyix ('12345678910117', "Farinha de Surui", 50.00, "200");
-call spInsetyix ('12345678910118', "Zelador de cem", 24.50, "100");
+call spInsertProduto("12345678910111", "Rei de Papel Machi", 54.61, 120);
+call spInsertProduto("12345678910112", "Bolinha de Sabão", "100.45", "120");
+call spInsertProduto("12345678910113", "Carro batebate", "44.00", "120");
+call spInsertProduto("12345678910114", "bola furada", "10.00", "120");
+call spInsertProduto("12345678910115", "maça laranja", "99.44", "120");
+call spInsertProduto("12345678910116", "boneco do hitler", "124.00", "200");
+call spInsertProduto("12345678910117", "farinha de surui", "50.00", "200");
+call spInsertProduto("12345678910118", "zelador de cemitério", "24.50", "100");
 
-describe tbendereco 
-drop procedure spInsertEndereco;
-select * from tbProduto; 
-select * from tbendereco; 
+
+
+select * from tbproduto;
+
+
+-- exercicio 6
+
 
 delimiter $$
-create procedure spInsertEndereco(vCep int, vLogra varchar(200), vBairro int, vCidade int, vUf int)
-begin
-if not exists ( select idBairro from tbendereco where idBairro = vBairro) then 
-	insert into tbBairro (Nomebairro) values (vNomeBairro);
-end if; 
-if not exists ( select idCidade from tbendereco where idCidade = vCidade) then 
-	insert into tbCidade (NomeCidade) values (vNomeCidade);
+create procedure spInsertEndereco(vCEP varchar(8), vLogradouro varchar(200), vBairro varchar(200), vCidade varchar(200), vUF char(2))
+begin 
+
+declare idBairroSP int;
+declare idCidadeSP int;
+declare idUFSP int;
+declare mensgErro text;
+
+if not exists (select * from tbBairro where Bairro = vBairro) then
+	insert into tbbairro (bairro) values (vBairro);
 end if;
-if not exists ( select idUf from tbendereco where idUf = vUf) then 
-	insert into tbUf (Uf) values (vNomeUf);
-end if; 
-       insert into tbendereco(Cep, Logradouro, idBairro, IdCidade, IdUF)
-					values(vCep, vLogra, vBairro, vCidade, vUf);
-end $$
+ 
+if not exists (select * from tbCidade where Cidade = vCidade) then
+	insert into tbcidade (cidade) values (vCidade);
+end if;
 
-drop procedure spInsertEndereco;
+if not exists (select * from tbUF where  UF = vUF) then
+	insert into tbuf (uf) values (vUF);
+end if;
 
-call spInsertEndereco ('12345050', 'Rua da Federal', vBairro='7', 'São Paulo', vUf='1'), 
+
+if not exists (select * from tbEndereco where vCEP = CEP) then
+
+	set @idBairroSP = (select idBairro from tbBairro where Bairro = vBairro);
+	set @idCidadeSP = (select idCidade from tbCidade where Cidade = vCidade);
+	set @idUFSP = (select idUF from tbUF where UF = vUF);
+    
+		else
+    select 'Já existe';
+end if;
+
+
+insert into tbEndereco(CEP, Logradouro, IdBairro, IdCidade, IdUF) values (vCEP, vLogradouro, @idBairroSP, @idCidadeSP, @idUFSP);
+end $$ 
+
+
+call spInsertEndereco(12345050, "Rua da Federal", "Lapa", "São Paulo", "SP");
+call spInsertEndereco(12345051, "Av Brasil", "Lapa", "Campinas", "SP");
+call spInsertEndereco(12345052, "Rua Liberdade", "Consolação", "São Paulo", "SP");
+call spInsertEndereco(12345053, "Av Paulista", "Penha", "Rio de Janeiro", "RJ");
+call spInsertEndereco(12345054, "Rua Ximbú", "Penha", "Rio de Janeiro", "RJ");
+call spInsertEndereco(12345055, "Rua Piu X1", "Penha", "Campinas", "SP");
+call spInsertEndereco(12345056, "Rua chocolate", "Aclimação", "Barra Mansa", "RJ");
+call spInsertEndereco(12345057, "Rua Pão na Chapa", "Barra Funda", "Ponta Grossa", "RS");
+
+select * from tbEndereco;
+select * from tbBairro;
+select * from tbCidade;
+select * from tbUF;
+
+-- exercicio 7 
+
+
+delimiter $$
+create procedure spInsertcliPF (Nomecli varchar(200), NumEnd varchar(5), CompEnd varchar(50), CEP varchar(8), CPF varchar(11), RG varchar(9), RG_Dig varchar(1), Nasc Date, Logradouro varchar(50),
+Bairro varchar(50), Cidade varchar (50), UF char(2))
